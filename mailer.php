@@ -1,29 +1,35 @@
 <?php
 
-$name = strip_tags(trim($_POST["name"]));
-$name = str_replace(array("\r","\n"),array(" "," "),$name);
-$email = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL);
-$message = trim($_POST["message"]);
+    // Načítá pole z formuláře - name, email a message; odstraňuje bílé znaky; odstraňuje HTML
+    $name = strip_tags(trim($_POST["name"]));
+    $name = str_replace(array("\r","\n"),array(" "," "),$name);
+    $email = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL);
+    $message = trim($_POST["message"]);
 
-if (empty($name) OR empty($message) OR !filter_var($email,
-FILTER_VALIDATE_EMAIL)) {
-header("Location: https://www.radkakrenova.com/index.html?success=-1#form");
-exit;
-}
+    // Kontroluje data popř. přesměruje na chybovou adresu
+    if (empty($name) OR empty($message) OR !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        header("Location: https://www.radkakrenova.com/index.html?success=-1#form");
+        exit;
+    }
 
-$recipient = "info@radkakrenova.com";
+    // Nastavte si email, nakterý chcete, aby se vyplněný formulář odeslal - jakýkoli váš email
+    $recipient = "info@radkakrenova.com";
 
+    // Nastavte předmět odeslaného emailu
+    $subject = "Máte nový kontakt od: $name";
 
-$subject = "Máte nový kontakt od: $name";
+    // Obsah emailu, který se vám odešle
+    $email_content = "Jméno: $name\n";
+    $email_content .= "Email: $email\n\n";
+    $email_content .= "Zpráva:\n$message\n";
 
-$email_content = "Jméno: $name\n";
-$email_content .= "Email: $email\n\n";
-$email_content .= "Zpráva:\n$message\n";
+    // Emailová hlavička
+    $email_headers = "From: $name <$email>";
 
-$email_headers = "From: $name <$email>";
-90
+    // Odeslání emailu - dáme vše dohromady
+    mail($recipient, $subject, $email_content, $email_headers);
+    
+    // Přesměrování na stránku, pokud vše proběhlo v pořádku
+    header("Location:https://www.radkakrenova.com/index.html?success=1#form");
 
-mail($recipient, $subject, $email_content, $email_headers);
-
-header("Location:https://www.radkakrenova.com/index.html?success=1#form");
 ?>
